@@ -1,0 +1,31 @@
+{
+  "name": "open-img-translate",
+  "version": "0.0.1",
+  "description": "A firefox extension for translating images.",
+  "keywords": [
+    "firefox",
+    "translator"
+  ],
+  "homepage": "https://github.com/RomanKryvko/open-img-translate#readme",
+  "bugs": {
+    "url": "https://github.com/RomanKryvko/open-img-translate/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RomanKryvko/open-img-translate.git"
+  },
+  "license": "GPL-3.0",
+  "author": "Roman Kryvko",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && copyfiles -u 1 src/manifest.json src/*.html src/styles/*.css src/*.png dist/",
+    "dev": "npm run build && cd dist/ && web-ext run"
+  },
+  "devDependencies": {
+    "@types/firefox-webext-browser": "^143.0.0",
+    "copyfiles": "^2.4.1",
+    "typescript": "^5.9.3",
+    "web-ext": "^9.0.0"
+  }
+}

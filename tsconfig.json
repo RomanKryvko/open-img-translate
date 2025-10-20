@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    "target": "ES6",
+    "module": "ES2020",
+    "types": ["firefox-webext-browser"],
+    "strict": true
+  }
+}

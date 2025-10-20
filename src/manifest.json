@@ -1,0 +1,14 @@
+{
+  "manifest_version": 2,
+  "name": "OpenImgTranslate",
+  "version": "0.0.1",
+
+  "description": "A firefox extension for translating images.",
+
+  "background": {
+    "scripts": ["index.js"]
+  },
+
+  "permissions": ["menus"]
+
+}
