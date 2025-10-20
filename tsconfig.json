@@ -5,7 +5,8 @@
 
     "target": "ES6",
     "module": "ES2020",
-    "types": ["firefox-webext-browser"],
+    "types": ["node", "firefox-webext-browser"],
+    "moduleResolution": "Node",
     "strict": true
   }
 }
