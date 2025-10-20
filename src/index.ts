@@ -8,7 +8,7 @@ function onCreated(): void {
 
 browser.menus.create({
   id: "translate-selection",
-  title: "Translate with OIT",
+  title: browser.i18n.getMessage("translateImage"),
   contexts: ["selection"] //TODO: replace with 'image' when the image translation is ready
 }, onCreated);
 
