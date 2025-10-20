@@ -8,7 +8,13 @@
   "background": {
     "scripts": ["index.js"]
   },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles/content.css"]
+    }
+  ],
 
-  "permissions": ["menus"]
-
+  "permissions": ["menus", "activeTab", "scripting"]
 }

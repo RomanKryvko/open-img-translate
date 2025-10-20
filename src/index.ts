@@ -12,16 +12,19 @@ browser.menus.create({
   contexts: ["selection"] //TODO: replace with 'image' when the image translation is ready
 }, onCreated);
 
-browser.menus.onClicked.addListener((info) => {
-  switch (info.menuItemId) {
-    case "translate-selection":
-      console.log(`Translating "${info.selectionText}"...`)
-      translate(info.selectionText);
-      break;
+browser.menus.onClicked.addListener(async (info, tab) => {
+  if (info.menuItemId === "translate-selection") {
+    const result = await translate(info.selectionText);
+    if (tab != undefined && tab.id != undefined)
+      browser.tabs.sendMessage(tab.id, {
+        type: "showTranslationPopup",
+        text: info.selectionText,
+        result,
+      });
   }
 });
 
-async function translate(str?: string): Promise<void> {
+async function translate(str?: string) {
   const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&dt=bd&dj=1&q=${encodeURIComponent(str || '')}`;
   const resp = await fetch(url);
   console.log(resp);
@@ -29,4 +32,8 @@ async function translate(str?: string): Promise<void> {
   console.log(json);
   console.log(`Detected source language: ${json.src}`);
   console.log(`Translation: ${json.sentences[0].trans}`);
+  return {
+    src: json.src,
+    trans: json.sentences.map((s: any) => s.trans).join(" "),
+  };
 }
