@@ -1,5 +1,3 @@
-import * as Tesseract from 'tesseract.js';
-
 function onCreated(): void {
   if (browser.runtime.lastError) {
     console.log(`Error: ${browser.runtime.lastError}`);
@@ -11,29 +9,22 @@ function onCreated(): void {
 browser.menus.create({
   id: "translate-selection",
   title: browser.i18n.getMessage("translateImage"),
-  contexts: ["selection"]
+  contexts: ["image"]
 }, onCreated);
 
-browser.menus.onClicked.addListener(async (info, tab) => {
-  if (info.menuItemId === "translate-selection") {
-    const element = browser.menus.getTargetElement(info.targetElementId || -1);
-    if (element === undefined) {
-      console.error("Couldn't get element from info.");
-      return;
-    }
-    try {
-      const res = await runOCR(element);
-      console.log(res);
-      const result = await translate(res);
-      if (tab != undefined && tab.id != undefined)
-        browser.tabs.sendMessage(tab.id, {
-          type: "showTranslationPopup",
-          text: info.selectionText,
-          result,
-        });
-    } catch (e) {
-      console.error(e);
-    }
+browser.menus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "translate-selection" && tab?.id) {
+    browser.tabs.sendMessage(tab.id, {
+      type: "translateElement",
+      targetElementId: info.targetElementId,
+    });
+  }
+});
+
+browser.runtime.onMessage.addListener(async (message) => {
+  if (message.type === "translateText") {
+    const res = await translate(message.text);
+    return res;
   }
 });
 
@@ -51,10 +42,3 @@ async function translate(str?: string) {
   };
 }
 
-async function runOCR(element: Element): Promise<string> {
-  if (element instanceof HTMLImageElement) {
-    const result = await Tesseract.recognize(element);
-    return result.data.text;
-  }
-  throw new Error("Target is not an image element");
-}
