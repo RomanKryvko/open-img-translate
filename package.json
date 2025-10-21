@@ -19,7 +19,7 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "build": "tsc && copyfiles -u 1 src/manifest.json src/_locales/**/* src/*.html src/styles/*.css src/*.png dist/",
+    "build": "vite build && copyfiles -u 1 src/manifest.json src/_locales/**/* src/*.html src/styles/*.css src/*.png dist/",
     "dev": "npm run build && cd dist/ && web-ext run"
   },
   "devDependencies": {
@@ -27,6 +27,7 @@
     "@types/node": "^24.9.0",
     "copyfiles": "^2.4.1",
     "typescript": "^5.9.3",
+    "vite": "^7.1.11",
     "web-ext": "^9.0.0"
   },
   "dependencies": {
