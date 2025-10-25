@@ -1,21 +1,41 @@
 import * as Tesseract from 'tesseract.js';
 
 browser.runtime.onMessage.addListener(async (message) => {
-  if (message.type === "translateElement") {
-    const element = browser.menus.getTargetElement(message.targetElementId);
-    if (element == undefined) {
-      console.error("Couldn't get element from info.");
-      return;
+  switch (message.type) {
+    case ("translateElement"): {
+      const element = browser.menus.getTargetElement(message.targetElementId);
+      if (element == undefined) {
+        console.error("Couldn't get element from info.");
+        return;
+      }
+      try {
+        showPopup("Recognising text...", 1000);
+        const recognisedText = await runOCR(element);
+        console.log(`OCR result: ${recognisedText}`);
+        showPopup("Translating...", 1000);
+        const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
+        showPopup(transResult.trans, 5000);
+      } catch (e) {
+        console.error(e);
+      }
+      break;
     }
-    try {
-      showPopup("Recognising text...", 1000);
-      const recognisedText = await runOCR(element);
-      console.log(`OCR result: ${recognisedText}`);
-      showPopup("Translating...", 1000);
-      const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
-      showPopup(transResult.trans, 5000);
-    } catch (e) {
-      console.error(e);
+    case ("startAreaSelection"): {
+      startAreaSelection()
+      break;
+    }
+    case ("translateArea"): {
+      try {
+        showPopup("Recognising text...", 1000);
+        const recognisedText = await runOCR(message.text);
+        console.log(`OCR result: ${recognisedText}`);
+        showPopup("Translating...", 1000);
+        const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
+        showPopup(transResult.trans, 5000);
+      } catch (e) {
+        console.error(e);
+      }
+      break;
     }
   }
 });
@@ -33,8 +53,71 @@ function showPopup(message: string, timeoutMs: number): void {
   setTimeout(() => popup.remove(), timeoutMs);
 }
 
-async function runOCR(element: Element): Promise<string> {
-  if (element instanceof HTMLImageElement) {
+function startAreaSelection() {
+  const overlay = document.createElement("div");
+  Object.assign(overlay.style, {
+    position: "fixed",
+    inset: "0",
+    backgroundColor: "rgba(0,0,0,0.3)",
+    cursor: "crosshair",
+    zIndex: "999999",
+  });
+  document.body.appendChild(overlay);
+
+  let startX = 0, startY = 0, box: HTMLDivElement | null = null;
+
+  function onMouseDown(e: MouseEvent) {
+    startX = e.clientX;
+    startY = e.clientY;
+    box = document.createElement("div");
+    Object.assign(box.style, {
+      position: "fixed",
+      border: "2px solid #00ffff",
+      backgroundColor: "rgba(0,255,255,0.1)",
+      left: `${startX}px`,
+      top: `${startY}px`,
+      zIndex: "1000000",
+    });
+    document.body.appendChild(box);
+    window.addEventListener("mousemove", onMouseMove);
+  }
+
+  function onMouseMove(e: MouseEvent) {
+    if (!box) return;
+    const x = Math.min(e.clientX, startX);
+    const y = Math.min(e.clientY, startY);
+    const w = Math.abs(e.clientX - startX);
+    const h = Math.abs(e.clientY - startY);
+    Object.assign(box.style, { left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
+  }
+
+  function onMouseUp(e: MouseEvent) {
+    if (!box) return;
+    overlay.remove();
+    window.removeEventListener("mousedown", onMouseDown);
+    window.removeEventListener("mouseup", onMouseUp);
+    window.removeEventListener("mousemove", onMouseMove);
+
+    const rect = box.getBoundingClientRect();
+    box.remove();
+    captureRegion(rect);
+  }
+
+  window.addEventListener("mousedown", onMouseDown);
+  window.addEventListener("mouseup", onMouseUp);
+}
+
+async function captureRegion(rect: DOMRect) {
+  const { left, top, width, height } = rect;
+  const imageUri = await browser.runtime.sendMessage({
+    type: "captureRegion",
+    rect: { left, top, width, height },
+  });
+  console.log("Captured region:", imageUri);
+}
+
+export async function runOCR(element: Element | string): Promise<string> {
+  if (element instanceof HTMLImageElement || typeof element === "string") {
     const result = await Tesseract.recognize(element);
     return result.data.text;
   }
