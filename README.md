@@ -18,7 +18,7 @@ A Firefox extension for translating text in images. It recognises the text using
 
 ## Dependencies
 ### Runtime
-* [https://github.com/naptha/tesseract.js](tesseract.js)
+* [tesseract.js](https://github.com/naptha/tesseract.js)
 ### Development
 * Typescript
 * Vite
@@ -37,10 +37,10 @@ npm run build
 The bundled extension will be stored in the `dist/` directory. You can install it to your browser from there.
 
 3. *(Optional for development)* Run Firefox with the extension temporarily installed.
-This starts the `web-ext` tool, which auto-reloads the extension whenever files in `dist/` change, so that you only need to run `build` to test your latest changes.
 ```sh
 npm run dev
 ```
+This starts the `web-ext` tool, which auto-reloads the extension whenever files in `dist/` change, so that you only need to run `build` to test your latest changes.
 
 # Usage
 1. Image mode: After installing the extension, right-click an image containing text and select "Translate with OIT".
