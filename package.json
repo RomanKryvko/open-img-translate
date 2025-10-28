@@ -23,9 +23,11 @@
     "dev": "npm run build && cd dist/ && web-ext run"
   },
   "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@types/firefox-webext-browser": "^143.0.0",
     "@types/node": "^24.9.0",
     "copyfiles": "^2.4.1",
+    "svelte": "^5.43.0",
     "typescript": "^5.9.3",
     "vite": "^7.1.11",
     "web-ext": "^9.0.0"

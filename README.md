@@ -22,6 +22,7 @@ A Firefox extension for translating text in images. It recognises the text using
 ### Development
 * Typescript
 * Vite
+* Svelte
 * web-ext
 
 ## Building & Installing

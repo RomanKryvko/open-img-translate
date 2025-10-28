@@ -1,4 +1,5 @@
 import * as Tesseract from 'tesseract.js';
+import { showPopup } from './popup/showPopup';
 
 browser.runtime.onMessage.addListener(async (message) => {
   switch (message.type) {
@@ -10,12 +11,12 @@ browser.runtime.onMessage.addListener(async (message) => {
       }
       try {
         const pos = getElementCenter(element)
-        showPopup("Recognising text...", 1000, pos);
+        showPopup("Recognising text...", pos, 1000);
         const recognisedText = await runOCR(element);
         console.log(`OCR result: ${recognisedText}`);
-        showPopup("Translating...", 1000, pos);
+        showPopup("Translating...", pos, 1000);
         const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
-        showPopup(transResult.trans, 5000, pos);
+        showPopup(transResult.trans, pos);
       } catch (e) {
         console.error(e);
       }
@@ -28,12 +29,12 @@ browser.runtime.onMessage.addListener(async (message) => {
     case ("translateArea"): {
       try {
         const pos = getWindowCenter();
-        showPopup("Recognising text...", 1000, pos);
+        showPopup("Recognising text...", pos, 1000);
         const recognisedText = await runOCR(message.text);
         console.log(`OCR result: ${recognisedText}`);
-        showPopup("Translating...", 1000, pos);
+        showPopup("Translating...", pos, 1000);
         const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
-        showPopup(transResult.trans, 5000, pos);
+        showPopup(transResult.trans, pos);
       } catch (e) {
         console.error(e);
       }
@@ -60,22 +61,6 @@ function getElementCenter(element: Element): Position {
     x: window.scrollX + rect.left + rect.width / 2,
     y: window.scrollY + rect.top + rect.height / 2
   };
-}
-
-function showPopup(message: string, timeoutMs: number, pos: Position): void {
-  const existing = document.getElementById("translator-popup");
-  if (existing) existing.remove();
-
-  const popup = document.createElement("div");
-  popup.id = "translator-popup";
-  popup.classList.add("translator-popup");
-  popup.textContent = message;
-  popup.style.left = pos.x + "px";
-  popup.style.top = pos.y + "px";
-  popup.classList.add(JSON.stringify(pos))
-  document.body.appendChild(popup);
-
-  setTimeout(() => popup.remove(), timeoutMs);
 }
 
 function startAreaSelection() {
