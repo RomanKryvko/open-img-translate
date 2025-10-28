@@ -9,12 +9,13 @@ browser.runtime.onMessage.addListener(async (message) => {
         return;
       }
       try {
-        showPopup("Recognising text...", 1000);
+        const pos = getElementCenter(element)
+        showPopup("Recognising text...", 1000, pos);
         const recognisedText = await runOCR(element);
         console.log(`OCR result: ${recognisedText}`);
-        showPopup("Translating...", 1000);
+        showPopup("Translating...", 1000, pos);
         const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
-        showPopup(transResult.trans, 5000);
+        showPopup(transResult.trans, 5000, pos);
       } catch (e) {
         console.error(e);
       }
@@ -26,12 +27,13 @@ browser.runtime.onMessage.addListener(async (message) => {
     }
     case ("translateArea"): {
       try {
-        showPopup("Recognising text...", 1000);
+        const pos = getWindowCenter();
+        showPopup("Recognising text...", 1000, pos);
         const recognisedText = await runOCR(message.text);
         console.log(`OCR result: ${recognisedText}`);
-        showPopup("Translating...", 1000);
+        showPopup("Translating...", 1000, pos);
         const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
-        showPopup(transResult.trans, 5000);
+        showPopup(transResult.trans, 5000, pos);
       } catch (e) {
         console.error(e);
       }
@@ -40,7 +42,27 @@ browser.runtime.onMessage.addListener(async (message) => {
   }
 });
 
-function showPopup(message: string, timeoutMs: number): void {
+interface Position {
+  x: number;
+  y: number;
+}
+
+function getWindowCenter(): Position {
+  return {
+    x: window.scrollX + window.innerWidth / 2,
+    y: window.scrollY + window.innerWidth / 2
+  };
+}
+
+function getElementCenter(element: Element): Position {
+  const rect = element.getBoundingClientRect();
+  return {
+    x: window.scrollX + rect.left + rect.width / 2,
+    y: window.scrollY + rect.top + rect.height / 2
+  };
+}
+
+function showPopup(message: string, timeoutMs: number, pos: Position): void {
   const existing = document.getElementById("translator-popup");
   if (existing) existing.remove();
 
@@ -48,6 +70,9 @@ function showPopup(message: string, timeoutMs: number): void {
   popup.id = "translator-popup";
   popup.classList.add("translator-popup");
   popup.textContent = message;
+  popup.style.left = pos.x + "px";
+  popup.style.top = pos.y + "px";
+  popup.classList.add(JSON.stringify(pos))
   document.body.appendChild(popup);
 
   setTimeout(() => popup.remove(), timeoutMs);
@@ -116,7 +141,7 @@ async function captureRegion(rect: DOMRect) {
   console.log("Captured region:", imageUri);
 }
 
-export async function runOCR(element: Element | string): Promise<string> {
+async function runOCR(element: Element | string): Promise<string> {
   if (element instanceof HTMLImageElement || typeof element === "string") {
     const result = await Tesseract.recognize(element);
     return result.data.text;

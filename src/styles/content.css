@@ -1,7 +1,5 @@
 .translator-popup {
-  position: fixed;
-  top: 20px;
-  right: 20px;
+  position: absolute;
   background: rgba(0, 0, 0, 0.8);
   color: white;
   padding: 8px 12px;
