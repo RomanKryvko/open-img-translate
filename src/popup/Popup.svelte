@@ -1,11 +1,10 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import Draggable from "./Draggable.svelte";
-  export let message = "";
-  export let pos = { x: 0, y: 0 };
-  export let timeoutMs = 0;
 
-  let popupElement: Element;
+  const props = $props();
+
+  let popupElement: HTMLElement | undefined = $state();
 
   const closeOnClick = (e: Event) => {
     if (popupElement && !popupElement.contains(<Node>e.target)) {
@@ -15,10 +14,10 @@
   };
 
   onMount(() => {
-    if (timeoutMs > 0) {
+    if (props.timeoutMs > 0) {
       setTimeout(() => {
-        popupElement.remove();
-      }, timeoutMs);
+        popupElement?.remove();
+      }, props.timeoutMs);
     } else {
       document.addEventListener("click", closeOnClick);
     }
@@ -30,9 +29,9 @@
 </script>
 
 <div bind:this={popupElement}>
-  <Draggable {pos}>
-    <div bind:this={popupElement} class="translator-popup">
-      <p>{message}</p>
+  <Draggable pos={props.pos}>
+    <div class="translator-popup">
+      <p>{props.message}</p>
     </div>
   </Draggable>
 </div>
