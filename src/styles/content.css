@@ -1,7 +1,4 @@
 .translator-popup {
-  position: absolute;
-  top: 0px;
-  left: 0px;
   background: #000000;
   color: white;
   overflow: scroll;
@@ -18,7 +15,4 @@
 .draggable {
   position: absolute;
   cursor: move;
-  display: inline-block;
-  width: max-content;
-  height: max-content;
 }
