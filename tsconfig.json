@@ -8,5 +8,6 @@
     "types": ["node", "firefox-webext-browser"],
     "moduleResolution": "Node",
     "strict": true
-  }
+  },
+  "include": ["src"]
 }

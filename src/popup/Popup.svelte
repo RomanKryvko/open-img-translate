@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
+  import Draggable from "./Draggable.svelte";
   export let message = "";
   export let pos = { x: 0, y: 0 };
   export let timeoutMs = 0;
@@ -28,10 +29,10 @@
   });
 </script>
 
-<div
-  bind:this={popupElement}
-  class="translator-popup"
-  style="left: {pos.x}px; top: {pos.y}px"
->
-  <p>{message}</p>
+<div bind:this={popupElement}>
+  <Draggable {pos}>
+    <div bind:this={popupElement} class="translator-popup">
+      <p>{message}</p>
+    </div>
+  </Draggable>
 </div>
