@@ -19,8 +19,8 @@
     const updatedLeft = left + e.movementX;
     const updatedTop = top + e.movementY;
 
-    const maxLeft = window.innerWidth - width;
-    const maxTop = window.innerHeight - height;
+    const maxLeft = window.scrollX + window.innerWidth - width;
+    const maxTop = window.scrollY + window.innerHeight - height;
 
     left = Math.max(0, Math.min(updatedLeft, maxLeft));
     top = Math.max(0, Math.min(updatedTop, maxTop));
