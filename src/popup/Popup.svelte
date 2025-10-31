@@ -16,8 +16,10 @@
   });
 </script>
 
-<div bind:this={popupElement}>
-  <div class="translator-popup" style="left:{left}px; top:{top}px;">
-    <p>{props.message}</p>
-  </div>
+<div
+  bind:this={popupElement}
+  class="translator-popup"
+  style="left:{left}px; top:{top}px;"
+>
+  <p>{props.message}</p>
 </div>
