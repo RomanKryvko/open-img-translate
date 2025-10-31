@@ -1,5 +1,5 @@
 import * as Tesseract from 'tesseract.js';
-import { showPopup } from './popup/showPopup';
+import { showPopup, showTranslationPopup } from './popup/showPopup';
 
 browser.runtime.onMessage.addListener(async (message) => {
   switch (message.type) {
@@ -16,7 +16,7 @@ browser.runtime.onMessage.addListener(async (message) => {
         console.log(`OCR result: ${recognisedText}`);
         showPopup("Translating...", pos, 1000);
         const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
-        showPopup(transResult.trans, pos);
+        showTranslationPopup(transResult.trans, pos);
       } catch (e) {
         console.error(e);
       }
@@ -34,7 +34,7 @@ browser.runtime.onMessage.addListener(async (message) => {
         console.log(`OCR result: ${recognisedText}`);
         showPopup("Translating...", pos, 1000);
         const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
-        showPopup(transResult.trans, pos);
+        showTranslationPopup(transResult.trans, pos);
       } catch (e) {
         console.error(e);
       }
@@ -51,7 +51,7 @@ interface Position {
 function getWindowCenter(): Position {
   return {
     x: window.scrollX + window.innerWidth / 2,
-    y: window.scrollY + window.innerWidth / 2
+    y: window.scrollY + window.innerHeight / 2
   };
 }
 
