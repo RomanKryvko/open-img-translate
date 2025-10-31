@@ -6,15 +6,24 @@
 
   let moving = $state(false);
 
+  let width: number = $state(0);
+  let height: number = $state(0);
+
   const onMouseDown = () => {
     moving = true;
   };
 
   const onMouseMove = (e: MouseEvent) => {
-    if (moving) {
-      left += e.movementX;
-      top += e.movementY;
-    }
+    if (!moving) return;
+
+    const updatedLeft = left + e.movementX;
+    const updatedTop = top + e.movementY;
+
+    const maxLeft = window.innerWidth - width;
+    const maxTop = window.innerHeight - height;
+
+    left = Math.max(0, Math.min(updatedLeft, maxLeft));
+    top = Math.max(0, Math.min(updatedTop, maxTop));
   };
 
   const onMouseUp = () => {
@@ -25,6 +34,8 @@
 <div
   role="textbox"
   tabindex="0"
+  bind:clientWidth={width}
+  bind:clientHeight={height}
   onmousedown={onMouseDown}
   style="left: {left}px; top: {top}px;"
   class="draggable"
