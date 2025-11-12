@@ -61,6 +61,7 @@ async function cropDataUrl(dataUrl: string, rect: { left: number; top: number; w
   });
 }
 
+//TODO: call the default translator interface here
 async function translate(str?: string) {
   const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&dt=bd&dj=1&q=${encodeURIComponent(str || '')}`;
   const resp = await fetch(url);

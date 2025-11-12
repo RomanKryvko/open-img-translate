@@ -1,5 +1,5 @@
 import { showPopup, showTranslationPopup, showTranslationWindowPopup } from './popup/showPopup';
-import { runOCR } from './ocr';
+import { runOCR, SupportedLangs } from './ocr';
 
 browser.runtime.onMessage.addListener(async (message) => {
   //TODO: create an actual list of supported langs
@@ -18,7 +18,7 @@ browser.runtime.onMessage.addListener(async (message) => {
         console.log(`OCR result: ${recognisedText}`);
         showPopup("Translating...", pos, 1000);
         const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
-        showTranslationWindowPopup(transResult.trans, pos, langs[2], langs[0], langs, element);
+        showTranslationWindowPopup(transResult.trans, pos, langs[2], langs[0], SupportedLangs, element);
       } catch (e) {
         console.error(e);
       }
@@ -36,7 +36,7 @@ browser.runtime.onMessage.addListener(async (message) => {
         console.log(`OCR result: ${recognisedText}`);
         showPopup("Translating...", pos, 1000);
         const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
-        showTranslationWindowPopup(transResult.trans, pos, langs[2], langs[0], langs, message.text);
+        showTranslationWindowPopup(transResult.trans, pos, langs[2], langs[0], SupportedLangs, message.text);
       } catch (e) {
         console.error(e);
       }
