@@ -1,7 +1,9 @@
-import * as Tesseract from 'tesseract.js';
-import { showPopup, showTranslationPopup } from './popup/showPopup';
+import { showPopup, showTranslationPopup, showTranslationWindowPopup } from './popup/showPopup';
+import { runOCR } from './ocr';
 
 browser.runtime.onMessage.addListener(async (message) => {
+  //TODO: create an actual list of supported langs
+  const langs = [{ key: 'eng', text: 'English' }, { key: 'ukr', text: 'Ukrainian' }, { key: 'spa', text: 'Spanish' }]
   switch (message.type) {
     case ("translateElement"): {
       const element = browser.menus.getTargetElement(message.targetElementId);
@@ -16,7 +18,7 @@ browser.runtime.onMessage.addListener(async (message) => {
         console.log(`OCR result: ${recognisedText}`);
         showPopup("Translating...", pos, 1000);
         const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
-        showTranslationPopup(transResult.trans, pos);
+        showTranslationWindowPopup(transResult.trans, pos, langs[2], langs[0], langs, element);
       } catch (e) {
         console.error(e);
       }
@@ -34,7 +36,7 @@ browser.runtime.onMessage.addListener(async (message) => {
         console.log(`OCR result: ${recognisedText}`);
         showPopup("Translating...", pos, 1000);
         const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
-        showTranslationPopup(transResult.trans, pos);
+        showTranslationWindowPopup(transResult.trans, pos, langs[2], langs[0], langs, message.text);
       } catch (e) {
         console.error(e);
       }
@@ -124,12 +126,4 @@ async function captureRegion(rect: DOMRect) {
     rect: { left, top, width, height },
   });
   console.log("Captured region:", imageUri);
-}
-
-async function runOCR(element: Element | string): Promise<string> {
-  if (element instanceof HTMLImageElement || typeof element === "string") {
-    const result = await Tesseract.recognize(element);
-    return result.data.text;
-  }
-  throw new Error("Target is not an image element");
 }

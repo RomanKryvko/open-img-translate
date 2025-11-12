@@ -11,9 +11,46 @@
   font-size: 18px;
   z-index: 9;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
 }
 
 .draggable {
   position: absolute;
   cursor: move;
+}
+
+.translator-window {
+  width: 450px;
+  height: 300px;
+}
+
+.language-menu {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+.language-menu div {
+  display: flex;
+  flex-direction: column;
+}
+
+.translator-textarea-wrapper {
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.translator-textarea {
+  resize: none;
+  color: white;
+  background: inherit;
+  border-radius: 6px;
+  width: 100%;
+  height: 100%;
 }
