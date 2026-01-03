@@ -44,8 +44,7 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
       return cropped;
     }
     case ("translateText"): {
-      const res = await translate(message.text);
-      return res;
+      return await translate(message.text, message.target);
     }
   }
 });
@@ -62,8 +61,9 @@ async function cropDataUrl(dataUrl: string, rect: { left: number; top: number; w
 }
 
 //TODO: call the default translator interface here
-async function translate(str?: string) {
-  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&dt=bd&dj=1&q=${encodeURIComponent(str || '')}`;
+async function translate(str?: string, target?: string) {
+  target = target || 'en';
+  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&dt=bd&dj=1&q=${encodeURIComponent(str || '')}`;
   const resp = await fetch(url);
   console.log(resp);
   const json = await resp.json();

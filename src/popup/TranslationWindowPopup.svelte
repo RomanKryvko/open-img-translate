@@ -20,12 +20,14 @@
   } = $props();
 
   let message = $state(initialMessage);
+  let target = targetLang;
 
   async function rerunTranslation(text: string) {
     message = (
       await browser.runtime.sendMessage({
         type: "translateText",
         text,
+        target: target.key,
       })
     ).trans;
   }
@@ -49,7 +51,8 @@
       />
       <LanguageSelect
         title={"To"}
-        callback={async (_selectedSrc) => {
+        callback={async (selectedTarget) => {
+          target = selectedTarget;
           rerunTranslation(message);
         }}
         options={languageOptions}
