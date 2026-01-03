@@ -20,13 +20,9 @@ async function translateElement(message: any) {
   }
   try {
     const pos = getElementCenter(element)
-    showPopup("Recognising text...", pos, 1000);
-    const recognisedText = await runOCR(element);
-    console.log(`OCR result: ${recognisedText}`);
-    showPopup("Translating...", pos, 1000);
-    const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
+    const transResult = await getTranslatedText(element, pos);
     //TODO: use actual default languages when settings are ready
-    showTranslationWindowPopup(transResult.trans, pos, { key: 'spa', text: 'Spanish' }, { key: 'eng', text: 'English' }, SupportedLangs, element);
+    showTranslationWindowPopup(transResult, pos, { key: 'spa', text: 'Spanish' }, { key: 'eng', text: 'English' }, SupportedLangs, element);
   } catch (e) {
     console.error(e);
   }
@@ -35,15 +31,19 @@ async function translateElement(message: any) {
 async function translateArea(message: any) {
   try {
     const pos = getWindowCenter();
-    showPopup("Recognising text...", pos, 1000);
-    const recognisedText = await runOCR(message.text);
-    console.log(`OCR result: ${recognisedText}`);
-    showPopup("Translating...", pos, 1000);
-    const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
-    showTranslationWindowPopup(transResult.trans, pos, { key: 'spa', text: 'Spanish' }, { key: 'eng', text: 'English' }, SupportedLangs, message.text);
+    const transResult = await getTranslatedText(message.text, pos);
+    showTranslationWindowPopup(transResult, pos, { key: 'spa', text: 'Spanish' }, { key: 'eng', text: 'English' }, SupportedLangs, message.text);
   } catch (e) {
     console.error(e);
   }
+}
+
+async function getTranslatedText(source: Element | string, pos: Position): Promise<string> {
+  showPopup("Recognising text...", pos, 1000);
+  const recognisedText = await runOCR(source);
+  console.log(`OCR result: ${recognisedText}`);
+  showPopup("Translating...", pos, 1000);
+  return (await browser.runtime.sendMessage({ type: "translateText", text: recognisedText })).trans;
 }
 
 interface Position {
