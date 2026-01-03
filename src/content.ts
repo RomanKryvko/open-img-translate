@@ -1,49 +1,50 @@
-import { showPopup, showTranslationPopup, showTranslationWindowPopup } from './popup/showPopup';
+import { showPopup, showTranslationWindowPopup } from './popup/showPopup';
 import { runOCR, SupportedLangs } from './ocr';
+import { EventMap } from './eventmap';
+
+const events: EventMap = {
+  'translateElement': translateElement,
+  'startAreaSelection': startAreaSelection,
+  'translateArea': translateArea,
+};
 
 browser.runtime.onMessage.addListener(async (message) => {
-  //TODO: create an actual list of supported langs
-  const langs = [{ key: 'eng', text: 'English' }, { key: 'ukr', text: 'Ukrainian' }, { key: 'spa', text: 'Spanish' }]
-  switch (message.type) {
-    case ("translateElement"): {
-      const element = browser.menus.getTargetElement(message.targetElementId);
-      if (element == undefined) {
-        console.error("Couldn't get element from info.");
-        return;
-      }
-      try {
-        const pos = getElementCenter(element)
-        showPopup("Recognising text...", pos, 1000);
-        const recognisedText = await runOCR(element);
-        console.log(`OCR result: ${recognisedText}`);
-        showPopup("Translating...", pos, 1000);
-        const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
-        showTranslationWindowPopup(transResult.trans, pos, langs[2], langs[0], SupportedLangs, element);
-      } catch (e) {
-        console.error(e);
-      }
-      break;
-    }
-    case ("startAreaSelection"): {
-      startAreaSelection()
-      break;
-    }
-    case ("translateArea"): {
-      try {
-        const pos = getWindowCenter();
-        showPopup("Recognising text...", pos, 1000);
-        const recognisedText = await runOCR(message.text);
-        console.log(`OCR result: ${recognisedText}`);
-        showPopup("Translating...", pos, 1000);
-        const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
-        showTranslationWindowPopup(transResult.trans, pos, langs[2], langs[0], SupportedLangs, message.text);
-      } catch (e) {
-        console.error(e);
-      }
-      break;
-    }
-  }
+  events[message.type](message);
 });
+
+async function translateElement(message: any) {
+  const element = browser.menus.getTargetElement(message.targetElementId);
+  if (element == undefined) {
+    console.error("Couldn't get element from info.");
+    return;
+  }
+  try {
+    const pos = getElementCenter(element)
+    showPopup("Recognising text...", pos, 1000);
+    const recognisedText = await runOCR(element);
+    console.log(`OCR result: ${recognisedText}`);
+    showPopup("Translating...", pos, 1000);
+    const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
+    //TODO: use actual default languages when settings are ready
+    showTranslationWindowPopup(transResult.trans, pos, { key: 'spa', text: 'Spanish' }, { key: 'eng', text: 'English' }, SupportedLangs, element);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function translateArea(message: any) {
+  try {
+    const pos = getWindowCenter();
+    showPopup("Recognising text...", pos, 1000);
+    const recognisedText = await runOCR(message.text);
+    console.log(`OCR result: ${recognisedText}`);
+    showPopup("Translating...", pos, 1000);
+    const transResult = await browser.runtime.sendMessage({ type: "translateText", text: recognisedText });
+    showTranslationWindowPopup(transResult.trans, pos, { key: 'spa', text: 'Spanish' }, { key: 'eng', text: 'English' }, SupportedLangs, message.text);
+  } catch (e) {
+    console.error(e);
+  }
+}
 
 interface Position {
   x: number;
@@ -103,7 +104,7 @@ function startAreaSelection() {
     Object.assign(box.style, { left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
   }
 
-  function onMouseUp(e: MouseEvent) {
+  function onMouseUp(_e: MouseEvent) {
     if (!box) return;
     overlay.remove();
     window.removeEventListener("mousedown", onMouseDown);

@@ -1,3 +1,14 @@
+import type { EventMap } from "./eventmap";
+
+const events: EventMap = {
+  'captureRegion': capture,
+  'translateText': translateMessage,
+};
+
+browser.runtime.onMessage.addListener(async (message, sender) => {
+  return events[message.type](message, sender);
+});
+
 function onCreated(): void {
   if (browser.runtime.lastError) {
     console.log(`Error: ${browser.runtime.lastError}`);
@@ -29,25 +40,22 @@ browser.menus.create({
   contexts: ["page"],
 }, onCreated);
 
-browser.runtime.onMessage.addListener(async (message, sender) => {
-  switch (message.type) {
-    case ("captureRegion"): {
-      const { rect } = message;
-      const dataUrl = await browser.tabs.captureVisibleTab({ format: "png" });
-      const cropped = await cropDataUrl(dataUrl, rect);
-      if (sender.tab?.id) {
-        browser.tabs.sendMessage(sender.tab.id, {
-          type: "translateArea",
-          text: cropped,
-        })
-      }
-      return cropped;
-    }
-    case ("translateText"): {
-      return await translate(message.text, message.target);
-    }
+async function capture(message: any, sender?: browser.runtime.MessageSender): Promise<string> {
+  const { rect } = message;
+  const dataUrl = await browser.tabs.captureVisibleTab({ format: "png" });
+  const cropped = await cropDataUrl(dataUrl, rect);
+  if (sender?.tab?.id) {
+    browser.tabs.sendMessage(sender.tab.id, {
+      type: "translateArea",
+      text: cropped,
+    })
   }
-});
+  return cropped;
+}
+
+async function translateMessage(message: any): Promise<{ src: string, trans: string }> {
+  return await translate(message.text, message.target);
+}
 
 async function cropDataUrl(dataUrl: string, rect: { left: number; top: number; width: number; height: number }) {
   const img = await createImageBitmap(await (await fetch(dataUrl)).blob());
