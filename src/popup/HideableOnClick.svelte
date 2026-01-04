@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from "svelte";
+  import { onMount, onDestroy } from 'svelte';
 
   const props = $props();
   let element: HTMLElement | undefined = $state();
@@ -12,11 +12,11 @@
   };
 
   onMount(() => {
-    document.addEventListener("click", hideOnClick);
+    document.addEventListener('click', hideOnClick);
   });
 
   onDestroy(() => {
-    document.removeEventListener("click", hideOnClick);
+    document.removeEventListener('click', hideOnClick);
   });
 </script>
 

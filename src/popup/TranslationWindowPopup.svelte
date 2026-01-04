@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { runOCR } from "../ocr";
-  import HideableOnClick from "./HideableOnClick.svelte";
-  import LanguageSelect from "./LanguageSelect.svelte";
+  import { runOCR } from '../ocr';
+  import HideableOnClick from './HideableOnClick.svelte';
+  import LanguageSelect from './LanguageSelect.svelte';
 
   const {
     pos,
@@ -25,7 +25,7 @@
   async function rerunTranslation(text: string) {
     message = (
       await browser.runtime.sendMessage({
-        type: "translateText",
+        type: 'translateText',
         text,
         target: target.key,
       })
@@ -34,14 +34,11 @@
 </script>
 
 <HideableOnClick>
-  <div
-    style="left:{pos.x}px; top:{pos.y}px;"
-    class="translator-popup translator-window"
-  >
+  <div style="left:{pos.x}px; top:{pos.y}px;" class="translator-popup translator-window">
     <div class="language-menu">
       <!-- TODO: use i18n strings here-->
       <LanguageSelect
-        title={"From"}
+        title={'From'}
         callback={async (selectedSrc) => {
           const recognised = await runOCR(image, selectedSrc?.key);
           rerunTranslation(recognised);
@@ -50,7 +47,7 @@
         defaultValue={srcLang}
       />
       <LanguageSelect
-        title={"To"}
+        title={'To'}
         callback={async (selectedTarget) => {
           target = selectedTarget;
           rerunTranslation(message);

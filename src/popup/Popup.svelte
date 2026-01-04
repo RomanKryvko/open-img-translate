@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount } from 'svelte';
 
   const props = $props();
   let left = $state(props.pos?.x ?? 0);
@@ -16,10 +16,6 @@
   });
 </script>
 
-<div
-  bind:this={popupElement}
-  class="translator-popup"
-  style="left:{left}px; top:{top}px;"
->
+<div bind:this={popupElement} class="translator-popup" style="left:{left}px; top:{top}px;">
   <p>{props.message}</p>
 </div>

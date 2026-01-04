@@ -1,1 +1,4 @@
-export type EventMap = Record<string, (message: any, sender?: browser.runtime.MessageSender) => any>;
+export type EventMap = Record<
+  string,
+  (message: any, sender?: browser.runtime.MessageSender) => any
+>;

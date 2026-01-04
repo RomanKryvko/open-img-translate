@@ -1,8 +1,8 @@
-import type { EventMap } from "./eventmap";
+import type { EventMap } from './eventmap';
 
 const events: EventMap = {
-  'captureRegion': capture,
-  'translateText': translateMessage,
+  captureRegion: capture,
+  translateText: translateMessage,
 };
 
 browser.runtime.onMessage.addListener(async (message, sender) => {
@@ -13,54 +13,63 @@ function onCreated(): void {
   if (browser.runtime.lastError) {
     console.log(`Error: ${browser.runtime.lastError}`);
   } else {
-    console.log("Item created successfully");
+    console.log('Item created successfully');
   }
 }
 
-browser.menus.create({
-  id: "translate-selection",
-  title: browser.i18n.getMessage("translateImage"),
-  contexts: ["image"]
-}, onCreated);
+browser.menus.create(
+  {
+    id: 'translate-selection',
+    title: browser.i18n.getMessage('translateImage'),
+    contexts: ['image'],
+  },
+  onCreated,
+);
 
 browser.menus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === "translate-selection" && tab?.id) {
+  if (info.menuItemId === 'translate-selection' && tab?.id) {
     browser.tabs.sendMessage(tab.id, {
-      type: "translateElement",
+      type: 'translateElement',
       targetElementId: info.targetElementId,
     });
-  } else if (info.menuItemId === "select-area-ocr" && tab?.id) {
-    browser.tabs.sendMessage(tab.id, { type: "startAreaSelection" });
+  } else if (info.menuItemId === 'select-area-ocr' && tab?.id) {
+    browser.tabs.sendMessage(tab.id, { type: 'startAreaSelection' });
   }
 });
 
-browser.menus.create({
-  id: "select-area-ocr",
-  title: "Translate selected area",
-  contexts: ["page"],
-}, onCreated);
+browser.menus.create(
+  {
+    id: 'select-area-ocr',
+    title: 'Translate selected area',
+    contexts: ['page'],
+  },
+  onCreated,
+);
 
 async function capture(message: any, sender?: browser.runtime.MessageSender): Promise<string> {
   const { rect } = message;
-  const dataUrl = await browser.tabs.captureVisibleTab({ format: "png" });
+  const dataUrl = await browser.tabs.captureVisibleTab({ format: 'png' });
   const cropped = await cropDataUrl(dataUrl, rect);
   if (sender?.tab?.id) {
     browser.tabs.sendMessage(sender.tab.id, {
-      type: "translateArea",
+      type: 'translateArea',
       text: cropped,
-    })
+    });
   }
   return cropped;
 }
 
-async function translateMessage(message: any): Promise<{ src: string, trans: string }> {
+async function translateMessage(message: any): Promise<{ src: string; trans: string }> {
   return await translate(message.text, message.target);
 }
 
-async function cropDataUrl(dataUrl: string, rect: { left: number; top: number; width: number; height: number }) {
+async function cropDataUrl(
+  dataUrl: string,
+  rect: { left: number; top: number; width: number; height: number },
+) {
   const img = await createImageBitmap(await (await fetch(dataUrl)).blob());
   const canvas = new OffscreenCanvas(rect.width, rect.height);
-  const ctx = canvas.getContext("2d")!;
+  const ctx = canvas.getContext('2d')!;
   ctx.drawImage(img, rect.left, rect.top, rect.width, rect.height, 0, 0, rect.width, rect.height);
   return canvas.convertToBlob().then(async (blob) => {
     const arr = await blob.arrayBuffer();
@@ -80,7 +89,6 @@ async function translate(str?: string, target?: string) {
   console.log(`Translation: ${json.sentences[0].trans}`);
   return {
     src: json.src,
-    trans: json.sentences.map((s: any) => s.trans).join(" "),
+    trans: json.sentences.map((s: any) => s.trans).join(' '),
   };
 }
-
