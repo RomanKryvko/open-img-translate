@@ -1,6 +1,8 @@
 import { showPopup, showTranslationWindowPopup } from './popup/showPopup';
-import { runOCR, SupportedLangs } from './ocr';
+import { runOCR, OCR_LANGS } from './ocr';
 import { EventMap } from './eventmap';
+import { LangCode } from './languages';
+import GoogleTranslator from './google';
 
 const events: EventMap = {
   translateElement: translateElement,
@@ -25,9 +27,9 @@ async function translateElement(message: any) {
     showTranslationWindowPopup(
       transResult,
       pos,
-      { key: 'spa', text: 'Spanish' },
-      { key: 'eng', text: 'English' },
-      SupportedLangs,
+      LangCode.Spanish,
+      LangCode.English,
+      { src: OCR_LANGS, target: GoogleTranslator.supported.target },
       element,
     );
   } catch (e) {
@@ -42,9 +44,9 @@ async function translateArea(message: any) {
     showTranslationWindowPopup(
       transResult,
       pos,
-      { key: 'spa', text: 'Spanish' },
-      { key: 'eng', text: 'English' },
-      SupportedLangs,
+      LangCode.Spanish,
+      LangCode.English,
+      { src: OCR_LANGS, target: GoogleTranslator.supported.target },
       message.text,
     );
   } catch (e) {
@@ -57,7 +59,8 @@ async function getTranslatedText(source: Element | string, pos: Position): Promi
   const recognisedText = await runOCR(source);
   console.log(`OCR result: ${recognisedText}`);
   showPopup('Translating...', pos, 1000);
-  return (await browser.runtime.sendMessage({ type: 'translateText', text: recognisedText })).trans;
+  return (await browser.runtime.sendMessage({ type: 'translateText', text: recognisedText }))
+    .result;
 }
 
 interface Position {

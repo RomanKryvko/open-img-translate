@@ -1,3 +1,4 @@
+import { LangCode } from '../languages';
 import Popup from './Popup.svelte';
 import TranslationPopup from './TranslationPopup.svelte';
 import TranslationWindowPopup from './TranslationWindowPopup.svelte';
@@ -45,9 +46,12 @@ export const showTranslationPopup = (message: string, pos: { x: number; y: numbe
 export const showTranslationWindowPopup = (
   message: string,
   pos: { x: number; y: number },
-  srcLang: { key: string; text: string },
-  targetLang: { key: string; text: string },
-  languageOptions: { key: string; text: string }[],
+  srcLang: LangCode,
+  targetLang: LangCode,
+  languageOptions: {
+    src: Set<LangCode | 'auto'>;
+    target: Set<LangCode>;
+  },
   image: Element | string,
 ): void => {
   const container = createContainer();

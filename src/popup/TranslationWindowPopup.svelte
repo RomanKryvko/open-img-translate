@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { LangCode } from '../languages';
   import { runOCR } from '../ocr';
   import HideableOnClick from './HideableOnClick.svelte';
   import LanguageSelect from './LanguageSelect.svelte';
@@ -12,14 +13,18 @@
     initialMessage,
   }: {
     pos: { x: number; y: number };
-    srcLang: { key: string; text: string };
-    targetLang: { key: string; text: string };
-    languageOptions: { key: string; text: string }[];
+    srcLang: LangCode;
+    targetLang: LangCode;
+    languageOptions: {
+      src: Set<LangCode | 'auto'>;
+      target: Set<LangCode>;
+    };
     image: Element | string;
     initialMessage: string;
   } = $props();
 
   let message = $state(initialMessage);
+  let src = srcLang;
   let target = targetLang;
 
   async function rerunTranslation(text: string) {
@@ -27,9 +32,10 @@
       await browser.runtime.sendMessage({
         type: 'translateText',
         text,
-        target: target.key,
+        src,
+        target,
       })
-    ).trans;
+    ).result;
   }
 </script>
 
@@ -40,10 +46,11 @@
       <LanguageSelect
         title={'From'}
         callback={async (selectedSrc) => {
-          const recognised = await runOCR(image, selectedSrc?.key);
+          src = selectedSrc;
+          const recognised = await runOCR(image, selectedSrc);
           rerunTranslation(recognised);
         }}
-        options={languageOptions}
+        options={languageOptions.src}
         defaultValue={srcLang}
       />
       <LanguageSelect
@@ -52,7 +59,7 @@
           target = selectedTarget;
           rerunTranslation(message);
         }}
-        options={languageOptions}
+        options={languageOptions.target}
         defaultValue={targetLang}
       />
     </div>

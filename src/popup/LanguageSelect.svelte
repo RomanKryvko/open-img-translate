@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { LangCode, LANGUAGE_REGISTRY } from '../languages';
+
   const {
     title,
     callback,
@@ -6,12 +8,12 @@
     defaultValue,
   }: {
     title: string;
-    callback: (value: any) => void;
-    options: { key: string; text: string }[];
-    defaultValue: { key: string; text: string };
+    callback: (value: LangCode) => void;
+    options: Set<LangCode | 'auto'>;
+    defaultValue: LangCode;
   } = $props();
 
-  let selected = $state();
+  let selected = $state(defaultValue);
 </script>
 
 <div class="language-select">
@@ -23,8 +25,8 @@
     }}
   >
     {#each options as opt}
-      <option value={opt} selected={opt.key == defaultValue.key}>
-        {opt.text}
+      <option value={opt} selected={opt == defaultValue}>
+        {LANGUAGE_REGISTRY[opt]}
       </option>
     {/each}
   </select>

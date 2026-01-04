@@ -1,5 +1,5 @@
 import { LangCode } from './languages';
-import type { TranslationResult, Translator } from './translator'
+import type { TranslationResult, Translator } from './translator';
 
 const getLanguageCodeString = (lang: LangCode): string => GOOGLE_LANG_KEYS[lang] || 'en'; // default to en in case of invalid target
 
@@ -80,17 +80,15 @@ const GOOGLE_LANG_KEYS: Partial<Record<LangCode, string>> = {
   [LangCode.Zulu]: 'zu',
 };
 
-const GOOGLE_LANGUAGE_SET = new Set<LangCode>(
-  Object.keys(GOOGLE_LANG_KEYS) as LangCode[]
-);
+const GOOGLE_LANGUAGE_SET = new Set<LangCode>(Object.keys(GOOGLE_LANG_KEYS) as LangCode[]);
 
-const GoogleTranslator: Translator = {
+class GoogleTranslator implements Translator {
   //NOTE: we are assuming that google's translation api is symmetric
-  supported: {
+  supported = {
     source: GOOGLE_LANGUAGE_SET,
     target: GOOGLE_LANGUAGE_SET,
-  },
-  translate: async (
+  };
+  translate = async (
     text: string,
     src: LangCode | 'auto',
     target: LangCode,
@@ -107,7 +105,8 @@ const GoogleTranslator: Translator = {
       src: json.src,
       result: json.sentences.map((s: any) => s.trans).join(' '),
     };
-  },
-};
+  };
+}
 
-export default GoogleTranslator;
+const GoogleTranslatorInst = new GoogleTranslator();
+export default GoogleTranslatorInst;
