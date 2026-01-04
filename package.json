@@ -19,7 +19,7 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "build": "vite build && copyfiles -u 1 src/manifest.json src/_locales/**/* src/*.html src/styles/*.css src/*.png dist/",
+    "build": "vite build --config vite.config.background.js && vite build --config vite.config.content.js && copyfiles -u 1 src/manifest.json src/_locales/**/* src/*.html src/styles/*.css src/*.png dist/",
     "dev": "npm run build && cd dist/ && web-ext run"
   },
   "devDependencies": {
