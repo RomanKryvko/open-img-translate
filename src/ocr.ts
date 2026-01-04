@@ -1,9 +1,10 @@
 import * as Tesseract from 'tesseract.js';
 import { LangCode } from './languages';
 
-export async function runOCR(element: Element | string, langs?: string): Promise<string> {
+export async function runOCR(element: Element | string, ...langs: LangCode[]): Promise<string> {
   if (element instanceof HTMLImageElement || typeof element === 'string') {
-    const result = await Tesseract.recognize(element, langs);
+    const langsString = langs.map((l) => TESSERACT_LANGS[l]).join('+') || 'eng';
+    const result = await Tesseract.recognize(element, langsString);
     return result.data.text;
   }
   throw new Error('Target is not an image element');
