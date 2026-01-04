@@ -19,14 +19,13 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "build": "vite build --config vite.config.background.js && vite build --config vite.config.content.js && copyfiles -u 1 src/manifest.json src/_locales/**/* src/*.html src/styles/*.css src/*.png dist/",
+    "build": "vite build --config vite.config.background.js && vite build --config vite.config.content.js && cp -r src/_locales/ src/styles/ src/manifest.json dist/",
     "dev": "npm run build && cd dist/ && web-ext run"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@types/firefox-webext-browser": "^143.0.0",
     "@types/node": "^24.9.0",
-    "copyfiles": "^2.4.1",
     "prettier": "^3.7.4",
     "prettier-plugin-svelte": "^3.4.1",
     "svelte": "^5.43.0",
