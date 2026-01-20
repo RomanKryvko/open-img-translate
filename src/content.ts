@@ -3,12 +3,34 @@ import { runOCR, OCR_LANGS } from './ocr';
 import { EventMap } from './eventmap';
 import { LangCode } from './languages';
 import GoogleTranslator from './google';
+import DeepLTranslator from './deepl';
+import { Settings, loadSettings, subscribeSettings } from './settings/settings';
+import { Translator } from './translator';
 
 const events: EventMap = {
   translateElement: translateElement,
   startAreaSelection: startAreaSelection,
   translateArea: translateArea,
 };
+
+//FIXME: code duplicated in index.ts
+const translators: Record<string, Translator> = {
+  google: GoogleTranslator,
+  deepl: DeepLTranslator,
+};
+
+let translator: Translator;
+let target: LangCode;
+let language: LangCode;
+
+const syncTranslatorConfig = (settings: Settings) => {
+  translator = translators[settings.provider.name];
+  target = settings.target;
+  language = settings.language;
+};
+
+loadSettings().then((settings) => syncTranslatorConfig(settings));
+subscribeSettings((settings) => syncTranslatorConfig(settings));
 
 browser.runtime.onMessage.addListener(async (message) => {
   events[message.type](message);
@@ -22,15 +44,15 @@ async function translateElement(message: any) {
   }
   try {
     const pos = getElementCenter(element);
-    const transResult = await getTranslatedText(element, pos);
-    //TODO: use actual default languages when settings are ready
+    const result = await runOCRandTranslation(element, pos);
     showTranslationWindowPopup(
-      transResult,
+      result.translation,
       pos,
-      LangCode.Spanish,
-      LangCode.English,
-      { src: OCR_LANGS, target: GoogleTranslator.supported.target },
+      language,
+      target,
+      { src: OCR_LANGS, target: translator.supported.target },
       element,
+      result.recognised,
     );
   } catch (e) {
     console.error(e);
@@ -40,27 +62,33 @@ async function translateElement(message: any) {
 async function translateArea(message: any) {
   try {
     const pos = getWindowCenter();
-    const transResult = await getTranslatedText(message.text, pos);
+    const result = await runOCRandTranslation(message.text, pos);
     showTranslationWindowPopup(
-      transResult,
+      result.translation,
       pos,
-      LangCode.Spanish,
-      LangCode.English,
+      language,
+      target,
       { src: OCR_LANGS, target: GoogleTranslator.supported.target },
       message.text,
+      result.recognised,
     );
   } catch (e) {
     console.error(e);
   }
 }
 
-async function getTranslatedText(source: Element | string, pos: Position): Promise<string> {
+async function runOCRandTranslation(
+  source: Element | string,
+  pos: Position,
+): Promise<{ recognised: string; translation: string }> {
   showPopup('Recognising text...', pos, 1000);
-  const recognisedText = await runOCR(source);
-  console.log(`OCR result: ${recognisedText}`);
+  const recognised = await runOCR(source);
+  console.log(`OCR result: ${recognised}`);
   showPopup('Translating...', pos, 1000);
-  return (await browser.runtime.sendMessage({ type: 'translateText', text: recognisedText }))
-    .result;
+  const translation = (
+    await browser.runtime.sendMessage({ type: 'translateText', text: recognised, target })
+  ).result;
+  return { recognised, translation };
 }
 
 interface Position {

@@ -10,6 +10,7 @@ const events: EventMap = {
   translateText: translateMessage,
 };
 
+//FIXME: code duplicated in content.ts
 const translators: Record<string, Translator> = {
   google: GoogleTranslator,
   deepl: DeepLTranslator,

@@ -53,6 +53,7 @@ export const showTranslationWindowPopup = (
     target: Set<LangCode>;
   },
   image: Element | string,
+  recognised: string,
 ): void => {
   const container = createContainer();
 
@@ -65,6 +66,7 @@ export const showTranslationWindowPopup = (
       targetLang,
       languageOptions,
       image,
+      recognised,
     },
   });
 };

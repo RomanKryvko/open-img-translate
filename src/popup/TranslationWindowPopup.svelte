@@ -10,6 +10,7 @@
     targetLang,
     languageOptions,
     image,
+    recognised,
     initialMessage,
   }: {
     pos: { x: number; y: number };
@@ -20,6 +21,9 @@
       target: Set<LangCode>;
     };
     image: Element | string;
+    // NOTE: We save the recognised text separately from the displayed message to avoid
+    // 'telephone game' when rerunning translation without rerunning OCR
+    recognised: string;
     initialMessage: string;
   } = $props();
 
@@ -47,8 +51,7 @@
         title={'From'}
         callback={async (selectedSrc) => {
           src = selectedSrc;
-          const recognised = await runOCR(image, selectedSrc);
-          rerunTranslation(recognised);
+          rerunTranslation(await runOCR(image, selectedSrc));
         }}
         options={languageOptions.src}
         defaultValue={srcLang}
@@ -57,7 +60,7 @@
         title={'To'}
         callback={async (selectedTarget) => {
           target = selectedTarget;
-          rerunTranslation(message);
+          rerunTranslation(recognised);
         }}
         options={languageOptions.target}
         defaultValue={targetLang}

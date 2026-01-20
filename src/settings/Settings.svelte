@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DeepLTranslator from '../deepl';
   import GoogleTranslator from '../google';
   import { LangCode } from '../languages';
   import { OCR_LANGS } from '../ocr';
@@ -7,14 +8,14 @@
   import { settings } from './settingsStore';
 
   const getSupportedTargets = (provider: string): Set<LangCode> => {
-    //FIXME: use provider variable when other providers are implemented
-    return GoogleTranslator.supported.target;
+    return providers.find((p) => p.value == provider)?.instance.supported.target!;
   };
 
   const providers = [
-    { value: 'google', name: 'Google' },
-    { value: 'deepl', name: 'DeepL' },
-    { value: 'libretranslate', name: 'LibreTranslate' },
+    { value: 'google', name: 'Google', instance: GoogleTranslator },
+    { value: 'deepl', name: 'DeepL', instance: DeepLTranslator },
+    //FIXME: change to LibreTranslate instance once it's implemented
+    { value: 'libretranslate', name: 'LibreTranslate', instance: GoogleTranslator },
   ];
 </script>
 
