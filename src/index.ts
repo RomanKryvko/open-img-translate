@@ -1,12 +1,27 @@
+import DeepLTranslator from './deepl';
 import type { EventMap } from './eventmap';
 import GoogleTranslator from './google';
 import { LangCode } from './languages';
-import { TranslationResult } from './translator';
+import { loadSettings, Settings, subscribeSettings } from './settings/settings';
+import { TranslationResult, Translator } from './translator';
 
 const events: EventMap = {
   captureRegion: capture,
   translateText: translateMessage,
 };
+
+const translators: Record<string, Translator> = {
+  google: GoogleTranslator,
+  deepl: DeepLTranslator,
+};
+
+const getTranslator = (settings: Settings): Translator => {
+  return translators[settings.provider.name];
+};
+
+let translator: Translator;
+loadSettings().then((settings) => (translator = getTranslator(settings)));
+subscribeSettings((settings) => (translator = getTranslator(settings)));
 
 browser.runtime.onMessage.addListener(async (message, sender) => {
   return events[message.type](message, sender);
@@ -65,7 +80,7 @@ async function capture(message: any, sender?: browser.runtime.MessageSender): Pr
 async function translateMessage(message: any): Promise<TranslationResult> {
   const src = (message.src as LangCode) || 'auto';
   const target = (message.target as LangCode) || 'en';
-  return await GoogleTranslator.translate(message.text, src, target);
+  return await translator.translate(message.text, src, target);
 }
 
 async function cropDataUrl(

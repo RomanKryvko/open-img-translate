@@ -25,6 +25,14 @@ export const loadSettings = async (): Promise<Settings> => {
   return settings ?? DEFAULT_SETTINGS;
 };
 
+export const subscribeSettings = (callback: (settings: Settings) => void) => {
+  browser.storage.onChanged.addListener(async (changes) => {
+    if (changes.settings) {
+      callback(await loadSettings());
+    }
+  });
+};
+
 export const saveSettings = async (settings: Settings): Promise<void> => {
   await browser.storage.local.set({ settings });
 };
