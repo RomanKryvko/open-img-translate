@@ -24,6 +24,5 @@
       "css": ["styles/content.css"]
     }
   ],
-
-  "permissions": ["menus", "activeTab", "scripting", "storage"]
+  "permissions": ["menus", "activeTab", "scripting", "storage", "*://api*.deepl.com/*"]
 }
