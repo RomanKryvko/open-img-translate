@@ -1,6 +1,6 @@
 <script lang="ts">
   import { settings } from './settingsStore';
-  let { group = $bindable(), value, label } = $props();
+  let { value, label, checked = false } = $props();
 </script>
 
 <label>
@@ -8,7 +8,7 @@
   <input
     type="radio"
     name="provider"
-    bind:group
+    {checked}
     onchange={(e) => {
       settings.update({
         provider: { ...$settings.provider, name: (e.target as HTMLInputElement).value },

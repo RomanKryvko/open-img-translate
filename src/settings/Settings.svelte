@@ -6,23 +6,28 @@
   import ProviderButton from './ProviderButton.svelte';
   import { settings } from './settingsStore';
 
-  let provider = $state($settings.provider.name);
   const getSupportedTargets = (provider: string): Set<LangCode> => {
     //FIXME: use provider variable when other providers are implemented
     return GoogleTranslator.supported.target;
   };
+
+  const providers = [
+    { value: 'google', name: 'Google' },
+    { value: 'deepl', name: 'DeepL' },
+    { value: 'libretranslate', name: 'LibreTranslate' },
+  ];
 </script>
 
 <h1>Open Image Translate Settings</h1>
 
 <label>
   Translation backend
-  <ProviderButton bind:group={provider} value={'google'} label={'Google'} />
-  <ProviderButton bind:group={provider} value={'deepl'} label={'DeepL'} />
-  <ProviderButton bind:group={provider} value={'libretranslate'} label={'LibreTranslate'} />
+  {#each providers as p}
+    <ProviderButton value={p.value} label={p.name} checked={p.value === $settings.provider.name} />
+  {/each}
 </label>
 
-{#if provider === 'deepl'}
+{#if $settings.provider.name === 'deepl'}
   <input
     type="password"
     value={$settings.provider.token ?? ''}
@@ -36,7 +41,7 @@
   />
 {/if}
 
-{#if provider === 'libretranslate'}
+{#if $settings.provider.name === 'libretranslate'}
   <input
     type="url"
     value={$settings.provider.url ?? ''}
@@ -53,7 +58,7 @@
 <LanguageSelect
   title={'Translation target language'}
   defaultValue={$settings.target}
-  options={getSupportedTargets(provider)}
+  options={getSupportedTargets($settings.provider.name)}
   callback={(target) => settings.update({ target })}
 />
 
