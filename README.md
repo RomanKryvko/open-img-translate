@@ -6,13 +6,13 @@ A Firefox extension for translating text in images. It recognises the text using
 ## Features
 - [x] A context menu for translating **images** (works on images).
 - [x] A context menu for translating **an area of screen** (works anywhere on a page).
-- [x] Uses Google Translate for translating recognised text.
+- [x] Support for Google Translate as a translation provider.
+- [x] Support for DeepL as a translation provider.
 - [x] A simple pop-up for displaying results.
 
 ## Planned features
 - [ ] Settings page for user preferences (target language, translation provider, etc.).
 - [ ] Option to display translations as an overlay on the page.
-- [ ] Support for DeepL as a translation provider.
 - [ ] Support for LibreTranslate as a translation provider.
 - [ ] Porting to Chromium.
 
