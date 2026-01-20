@@ -68,7 +68,7 @@ async function translateArea(message: any) {
       pos,
       language,
       target,
-      { src: OCR_LANGS, target: GoogleTranslator.supported.target },
+      { src: OCR_LANGS, target: translator.supported.target },
       message.text,
       result.recognised,
     );
