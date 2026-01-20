@@ -4,7 +4,6 @@ import type { TranslationResult, Translator } from './translator';
 const getLanguageCodeString = (lang: LangCode): string => GOOGLE_LANG_KEYS[lang] || 'en'; // default to en in case of invalid target
 
 const GOOGLE_LANG_KEYS: Partial<Record<LangCode, string>> = {
-  [LangCode.Auto]: 'auto',
   [LangCode.Afrikaans]: 'af',
   [LangCode.Albanian]: 'sq',
   [LangCode.Arabic]: 'ar',
