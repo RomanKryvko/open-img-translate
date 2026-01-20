@@ -21,40 +21,46 @@
 
 <h1>Open Image Translate Settings</h1>
 
-<label>
-  Translation backend
+<h2>Translation backend</h2>
+<div class="provider">
   {#each providers as p}
     <ProviderButton value={p.value} label={p.name} checked={p.value === $settings.provider.name} />
   {/each}
-</label>
 
-{#if $settings.provider.name === 'deepl'}
-  <input
-    type="password"
-    value={$settings.provider.token ?? ''}
-    oninput={(e) =>
-      settings.update({
-        provider: {
-          ...$settings.provider,
-          token: (e.target as HTMLInputElement).value,
-        },
-      })}
-  />
-{/if}
+  {#if $settings.provider.name === 'deepl'}
+    <label>
+      DeepL API token
+      <input
+        type="password"
+        value={$settings.provider.token ?? ''}
+        oninput={(e) =>
+          settings.update({
+            provider: {
+              ...$settings.provider,
+              token: (e.target as HTMLInputElement).value,
+            },
+          })}
+      />
+    </label>
+  {/if}
 
-{#if $settings.provider.name === 'libretranslate'}
-  <input
-    type="url"
-    value={$settings.provider.url ?? ''}
-    oninput={(e) =>
-      settings.update({
-        provider: {
-          ...$settings.provider,
-          url: (e.target as HTMLInputElement).value,
-        },
-      })}
-  />
-{/if}
+  {#if $settings.provider.name === 'libretranslate'}
+    <label>
+      LibreTranslate instance URL
+      <input
+        type="url"
+        value={$settings.provider.url ?? ''}
+        oninput={(e) =>
+          settings.update({
+            provider: {
+              ...$settings.provider,
+              url: (e.target as HTMLInputElement).value,
+            },
+          })}
+      />
+    </label>
+  {/if}
+</div>
 
 <LanguageSelect
   title={'Translation target language'}
@@ -69,3 +75,10 @@
   options={OCR_LANGS}
   callback={(language) => settings.update({ language })}
 />
+
+<style>
+  .provider {
+    display: flex;
+    flex-direction: column;
+  }
+</style>
