@@ -3,6 +3,7 @@
   import { LangCode } from '../languages';
   import { OCR_LANGS } from '../ocr';
   import LanguageSelect from '../popup/LanguageSelect.svelte';
+  import ProviderButton from './ProviderButton.svelte';
   import { settings } from './settingsStore';
 
   let provider = $state($settings.provider.name);
@@ -16,18 +17,9 @@
 
 <label>
   Translation backend
-  <select
-    bind:value={provider}
-    onchange={(e) => {
-      settings.update({
-        provider: { ...$settings.provider, name: (e.target as HTMLSelectElement).value },
-      });
-    }}
-  >
-    <option value="google">Google</option>
-    <option value="deepl">DeepL</option>
-    <option value="libretranslate">LibreTranslate</option>
-  </select>
+  <ProviderButton bind:group={provider} value={'google'} label={'Google'} />
+  <ProviderButton bind:group={provider} value={'deepl'} label={'DeepL'} />
+  <ProviderButton bind:group={provider} value={'libretranslate'} label={'LibreTranslate'} />
 </label>
 
 {#if provider === 'deepl'}
