@@ -1,36 +1,13 @@
 import { showPopup, showTranslationWindowPopup } from './popup/showPopup';
 import { runOCR, OCR_LANGS } from './ocr';
 import { EventMap } from './eventmap';
-import { LangCode } from './languages';
-import GoogleTranslator from './google';
-import DeepLTranslator from './deepl';
-import { Settings, loadSettings, subscribeSettings } from './settings/settings';
-import { Translator } from './translator';
+import { getLanguage, getTarget, getTranslator } from './translatorConfig';
 
 const events: EventMap = {
   translateElement: translateElement,
   startAreaSelection: startAreaSelection,
   translateArea: translateArea,
 };
-
-//FIXME: code duplicated in index.ts
-const translators: Record<string, Translator> = {
-  google: GoogleTranslator,
-  deepl: DeepLTranslator,
-};
-
-let translator: Translator;
-let target: LangCode;
-let language: LangCode;
-
-const syncTranslatorConfig = (settings: Settings) => {
-  translator = translators[settings.provider.name];
-  target = settings.target;
-  language = settings.language;
-};
-
-loadSettings().then((settings) => syncTranslatorConfig(settings));
-subscribeSettings((settings) => syncTranslatorConfig(settings));
 
 browser.runtime.onMessage.addListener(async (message) => {
   events[message.type](message);
@@ -48,9 +25,9 @@ async function translateElement(message: any) {
     showTranslationWindowPopup(
       result.translation,
       pos,
-      language,
-      target,
-      { src: OCR_LANGS, target: translator.supported.target },
+      getLanguage(),
+      getTarget(),
+      { src: OCR_LANGS, target: getTranslator().supported.target },
       element,
       result.recognised,
     );
@@ -66,9 +43,9 @@ async function translateArea(message: any) {
     showTranslationWindowPopup(
       result.translation,
       pos,
-      language,
-      target,
-      { src: OCR_LANGS, target: translator.supported.target },
+      getLanguage(),
+      getTarget(),
+      { src: OCR_LANGS, target: getTranslator().supported.target },
       message.text,
       result.recognised,
     );
@@ -86,7 +63,11 @@ async function runOCRandTranslation(
   console.log(`OCR result: ${recognised}`);
   showPopup('Translating...', pos, 1000);
   const translation = (
-    await browser.runtime.sendMessage({ type: 'translateText', text: recognised, target })
+    await browser.runtime.sendMessage({
+      type: 'translateText',
+      text: recognised,
+      target: getTarget(),
+    })
   ).result;
   return { recognised, translation };
 }
