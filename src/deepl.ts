@@ -1,10 +1,6 @@
 import { LangCode } from './languages';
 import { TranslationResult, Translator } from './translator';
-import { loadSettings, subscribeSettings } from './settings/settings';
-
-let apiKey: string | null;
-loadSettings().then((settings) => (apiKey = settings.provider.token));
-subscribeSettings((settings) => (apiKey = settings.provider.token));
+import { getApiToken } from './translatorConfig';
 
 const getLanguageCodeString = (lang: LangCode, record: Partial<Record<LangCode, string>>): string =>
   record[lang] || 'EN'; // default to en in case of invalid target
@@ -101,6 +97,7 @@ class DeepLTranslator implements Translator {
     src: LangCode | 'auto',
     target: LangCode,
   ): Promise<TranslationResult> => {
+    const apiKey = getApiToken();
     if (!apiKey) {
       throw new Error('DeepL API key not set');
     }

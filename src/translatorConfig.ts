@@ -16,18 +16,22 @@ let token: string | null;
 let url: string | null;
 
 const sync = (settings: Settings) => {
-  translator = translatorRegistry[settings.provider.name];
+  const id = settings.activeProviderId;
+  translator = translatorRegistry[id];
   target = settings.target;
   language = settings.language;
-  token = settings.provider.token;
-  url = settings.provider.url;
+  token = settings.providers[id].token;
+  url = settings.providers[id].url;
 };
 
 loadSettings().then((settings) => sync(settings));
 subscribeSettings((settings) => sync(settings));
 
 export const getTranslator = (): Translator => translator;
-export const getTranslatorById = (id: string): Translator => translatorRegistry[id];
+export const getTranslatorById = (id: string): Translator => {
+  //NOTE: Google Translate is the fallback option
+  return translatorRegistry[id] || GoogleTranslator;
+};
 export const getTarget = (): LangCode => target;
 export const getLanguage = (): LangCode => language;
 export const getApiToken = (): string | null => token;

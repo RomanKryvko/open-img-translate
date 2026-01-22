@@ -1,62 +1,73 @@
 <script lang="ts">
-  import DeepLTranslator from '../deepl';
-  import GoogleTranslator from '../google';
   import { LangCode } from '../languages';
   import { OCR_LANGS } from '../ocr';
   import LanguageSelect from '../popup/LanguageSelect.svelte';
+  import { getTranslatorById } from '../translatorConfig';
   import ProviderButton from './ProviderButton.svelte';
+  import { getActiveProvider } from './settings';
   import { settings } from './settingsStore';
 
   const getSupportedTargets = (provider: string): Set<LangCode> => {
-    return providers.find((p) => p.value == provider)?.instance.supported.target!;
+    return getTranslatorById(provider).supported.target;
   };
 
-  const providers = [
-    { value: 'google', name: 'Google', instance: GoogleTranslator },
-    { value: 'deepl', name: 'DeepL', instance: DeepLTranslator },
-    //FIXME: change to LibreTranslate instance once it's implemented
-    { value: 'libretranslate', name: 'LibreTranslate', instance: GoogleTranslator },
-  ];
+  const updateSettingsToken = (token: string) => {
+    const id = $settings.activeProviderId;
+    settings.update({
+      providers: {
+        ...$settings.providers,
+        id: {
+          ...$settings.providers[id],
+          token,
+        },
+      },
+    });
+  };
+
+  const updateSettingsUrl = (url: string) => {
+    const id = $settings.activeProviderId;
+    settings.update({
+      providers: {
+        ...$settings.providers,
+        id: {
+          ...$settings.providers[id],
+          url,
+        },
+      },
+    });
+  };
 </script>
 
 <h1>Open Image Translate Settings</h1>
 
 <h2>Translation backend</h2>
 <div class="provider">
-  {#each providers as p}
-    <ProviderButton value={p.value} label={p.name} checked={p.value === $settings.provider.name} />
+  {#each Object.keys($settings.providers) as p}
+    <ProviderButton
+      value={p}
+      label={$settings.providers[p].name}
+      checked={$settings.activeProviderId === p}
+    />
   {/each}
 
-  {#if $settings.provider.name === 'deepl'}
+  {#if getActiveProvider($settings).requiresToken}
     <label>
-      DeepL API token
+      {getActiveProvider($settings).name} API token
       <input
         type="password"
-        value={$settings.provider.token ?? ''}
-        oninput={(e) =>
-          settings.update({
-            provider: {
-              ...$settings.provider,
-              token: (e.target as HTMLInputElement).value,
-            },
-          })}
+        value={getActiveProvider($settings).token ?? ''}
+        oninput={(e) => updateSettingsToken((e.target as HTMLInputElement).value)}
       />
     </label>
   {/if}
 
-  {#if $settings.provider.name === 'libretranslate'}
+  {#if getActiveProvider($settings).requiresUrl}
     <label>
-      LibreTranslate instance URL
+      {getActiveProvider($settings).name} URL
       <input
         type="url"
-        value={$settings.provider.url ?? ''}
-        oninput={(e) =>
-          settings.update({
-            provider: {
-              ...$settings.provider,
-              url: (e.target as HTMLInputElement).value,
-            },
-          })}
+        value={getActiveProvider($settings).url ?? ''}
+        oninput={(e) => updateSettingsUrl((e.target as HTMLInputElement).value)}
       />
     </label>
   {/if}
@@ -65,7 +76,7 @@
 <LanguageSelect
   title={'Translation target language'}
   defaultValue={$settings.target}
-  options={getSupportedTargets($settings.provider.name)}
+  options={getSupportedTargets($settings.activeProviderId)}
   callback={(target) => settings.update({ target })}
 />
 

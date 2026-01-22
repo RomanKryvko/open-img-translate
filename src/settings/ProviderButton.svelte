@@ -9,11 +9,10 @@
     type="radio"
     name="provider"
     {checked}
-    onchange={(e) => {
+    onchange={() =>
       settings.update({
-        provider: { ...$settings.provider, name: (e.target as HTMLInputElement).value },
-      });
-    }}
+        activeProviderId: value,
+      })}
     {value}
   /></label
 >
