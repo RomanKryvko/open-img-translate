@@ -1,6 +1,7 @@
 <script lang="ts">
   import { LangCode } from '../languages';
   import { runOCR } from '../ocr';
+  import Draggable from './Draggable.svelte';
   import HideableOnClick from './HideableOnClick.svelte';
   import LanguageSelect from './LanguageSelect.svelte';
 

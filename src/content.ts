@@ -2,6 +2,8 @@ import { showPopup, showTranslationWindowPopup } from './popup/showPopup';
 import { runOCR, OCR_LANGS } from './ocr';
 import { EventMap } from './eventmap';
 import { getLanguage, getTarget, getTranslator } from './translatorConfig';
+import { mount } from 'svelte';
+import SelectionOverlay from './popup/SelectionOverlay.svelte';
 
 const translateElement = async (message: any) => {
   const element = browser.menus.getTargetElement(message.targetElementId);
@@ -70,68 +72,7 @@ const getElementCenter = (element: Element): Position => {
 };
 
 const startAreaSelection = () => {
-  const overlay = document.createElement('div');
-  Object.assign(overlay.style, {
-    position: 'fixed',
-    inset: '0',
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    cursor: 'crosshair',
-    zIndex: '999999',
-  });
-  document.body.appendChild(overlay);
-
-  let startX = 0,
-    startY = 0,
-    box: HTMLDivElement | null = null;
-
-  const onMouseDown = (e: MouseEvent) => {
-    startX = e.clientX;
-    startY = e.clientY;
-    box = document.createElement('div');
-    Object.assign(box.style, {
-      position: 'fixed',
-      border: '2px solid #00ffff',
-      backgroundColor: 'rgba(0,255,255,0.1)',
-      left: `${startX}px`,
-      top: `${startY}px`,
-      zIndex: '1000000',
-    });
-    document.body.appendChild(box);
-    window.addEventListener('mousemove', onMouseMove);
-  };
-
-  const onMouseMove = (e: MouseEvent) => {
-    if (!box) return;
-    const x = Math.min(e.clientX, startX);
-    const y = Math.min(e.clientY, startY);
-    const w = Math.abs(e.clientX - startX);
-    const h = Math.abs(e.clientY - startY);
-    Object.assign(box.style, { left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
-  };
-
-  const onMouseUp = (_e: MouseEvent) => {
-    if (!box) return;
-    overlay.remove();
-    window.removeEventListener('mousedown', onMouseDown);
-    window.removeEventListener('mouseup', onMouseUp);
-    window.removeEventListener('mousemove', onMouseMove);
-
-    const rect = box.getBoundingClientRect();
-    box.remove();
-    captureRegion(rect);
-  };
-
-  window.addEventListener('mousedown', onMouseDown);
-  window.addEventListener('mouseup', onMouseUp);
-};
-
-const captureRegion = async (rect: DOMRect) => {
-  const { left, top, width, height } = rect;
-  const imageUri = await browser.runtime.sendMessage({
-    type: 'captureRegion',
-    rect: { left, top, width, height },
-  });
-  console.log('Captured region:', imageUri);
+  mount(SelectionOverlay, { target: document.body });
 };
 
 const events: EventMap = {
