@@ -3,42 +3,52 @@ import { LangCode } from './languages';
 import { getTranslator } from './translatorConfig';
 import { TranslationResult } from './translator';
 
-const onCreated = (): void => {
-  if (browser.runtime.lastError) {
-    console.log(`Error: ${browser.runtime.lastError}`);
-  } else {
-    console.log('Item created successfully');
+const init = () => {
+  const events: EventMap = {
+    captureRegion: capture,
+    translateText: translateMessage,
+  };
+
+  const MENU_ITEMS: browser.menus._CreateCreateProperties[] = [
+    {
+      id: 'translate-selection',
+      title: browser.i18n.getMessage('translateImage'),
+      contexts: ['image'],
+    },
+    {
+      id: 'select-area-ocr',
+      title: 'Translate selected area',
+      contexts: ['page'],
+    },
+  ];
+
+  const onCreated = () => {
+    if (browser.runtime.lastError) {
+      console.log(`Error: ${browser.runtime.lastError}`);
+    } else {
+      console.log('Item created successfully');
+    }
+  };
+
+  for (let menuItem of MENU_ITEMS) {
+    browser.menus.create(menuItem, onCreated);
   }
+
+  browser.menus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId === 'translate-selection' && tab?.id) {
+      browser.tabs.sendMessage(tab.id, {
+        type: 'translateElement',
+        targetElementId: info.targetElementId,
+      });
+    } else if (info.menuItemId === 'select-area-ocr' && tab?.id) {
+      browser.tabs.sendMessage(tab.id, { type: 'startAreaSelection' });
+    }
+  });
+
+  browser.runtime.onMessage.addListener(async (message, sender) => {
+    return events[message.type](message, sender);
+  });
 };
-
-browser.menus.create(
-  {
-    id: 'translate-selection',
-    title: browser.i18n.getMessage('translateImage'),
-    contexts: ['image'],
-  },
-  onCreated,
-);
-
-browser.menus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === 'translate-selection' && tab?.id) {
-    browser.tabs.sendMessage(tab.id, {
-      type: 'translateElement',
-      targetElementId: info.targetElementId,
-    });
-  } else if (info.menuItemId === 'select-area-ocr' && tab?.id) {
-    browser.tabs.sendMessage(tab.id, { type: 'startAreaSelection' });
-  }
-});
-
-browser.menus.create(
-  {
-    id: 'select-area-ocr',
-    title: 'Translate selected area',
-    contexts: ['page'],
-  },
-  onCreated,
-);
 
 const capture = async (message: any, sender?: browser.runtime.MessageSender): Promise<string> => {
   const { rect } = message;
@@ -73,11 +83,4 @@ const cropDataUrl = async (
   });
 };
 
-const events: EventMap = {
-  captureRegion: capture,
-  translateText: translateMessage,
-};
-
-browser.runtime.onMessage.addListener(async (message, sender) => {
-  return events[message.type](message, sender);
-});
+init();
