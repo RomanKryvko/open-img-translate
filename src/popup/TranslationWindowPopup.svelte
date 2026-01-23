@@ -31,7 +31,7 @@
   let src = srcLang;
   let target = targetLang;
 
-  async function rerunTranslation(text: string) {
+  const rerunTranslation = async (text: string) => {
     message = (
       await browser.runtime.sendMessage({
         type: 'translateText',
@@ -40,7 +40,7 @@
         target,
       })
     ).result;
-  }
+  };
 </script>
 
 <HideableOnClick>

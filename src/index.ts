@@ -3,22 +3,13 @@ import { LangCode } from './languages';
 import { getTranslator } from './translatorConfig';
 import { TranslationResult } from './translator';
 
-const events: EventMap = {
-  captureRegion: capture,
-  translateText: translateMessage,
-};
-
-browser.runtime.onMessage.addListener(async (message, sender) => {
-  return events[message.type](message, sender);
-});
-
-function onCreated(): void {
+const onCreated = (): void => {
   if (browser.runtime.lastError) {
     console.log(`Error: ${browser.runtime.lastError}`);
   } else {
     console.log('Item created successfully');
   }
-}
+};
 
 browser.menus.create(
   {
@@ -49,7 +40,7 @@ browser.menus.create(
   onCreated,
 );
 
-async function capture(message: any, sender?: browser.runtime.MessageSender): Promise<string> {
+const capture = async (message: any, sender?: browser.runtime.MessageSender): Promise<string> => {
   const { rect } = message;
   const dataUrl = await browser.tabs.captureVisibleTab({ format: 'png' });
   const cropped = await cropDataUrl(dataUrl, rect);
@@ -60,18 +51,18 @@ async function capture(message: any, sender?: browser.runtime.MessageSender): Pr
     });
   }
   return cropped;
-}
+};
 
-async function translateMessage(message: any): Promise<TranslationResult> {
+const translateMessage = async (message: any): Promise<TranslationResult> => {
   const src = (message.src as LangCode) || 'auto';
   const target = (message.target as LangCode) || 'en';
   return await getTranslator().translate(message.text, src, target);
-}
+};
 
-async function cropDataUrl(
+const cropDataUrl = async (
   dataUrl: string,
   rect: { left: number; top: number; width: number; height: number },
-) {
+) => {
   const img = await createImageBitmap(await (await fetch(dataUrl)).blob());
   const canvas = new OffscreenCanvas(rect.width, rect.height);
   const ctx = canvas.getContext('2d')!;
@@ -80,4 +71,13 @@ async function cropDataUrl(
     const arr = await blob.arrayBuffer();
     return `data:image/png;base64,${btoa(String.fromCharCode(...new Uint8Array(arr)))}`;
   });
-}
+};
+
+const events: EventMap = {
+  captureRegion: capture,
+  translateText: translateMessage,
+};
+
+browser.runtime.onMessage.addListener(async (message, sender) => {
+  return events[message.type](message, sender);
+});

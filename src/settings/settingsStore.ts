@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 import { Settings, loadSettings, saveSettings, DEFAULT_SETTINGS } from './settings';
 
-function createSettingsStore() {
+const createSettingsStore = () => {
   const { subscribe, set, update } = writable<Settings>(DEFAULT_SETTINGS);
 
   return {
@@ -20,6 +20,6 @@ function createSettingsStore() {
       });
     },
   };
-}
+};
 
 export const settings = createSettingsStore();
