@@ -21,16 +21,7 @@ async function translateElement(message: any) {
   }
   try {
     const pos = getElementCenter(element);
-    const result = await runOCRandTranslation(element, pos);
-    showTranslationWindowPopup(
-      result.translation,
-      pos,
-      getLanguage(),
-      getTarget(),
-      { src: OCR_LANGS, target: getTranslator().supported.target },
-      element,
-      result.recognised,
-    );
+    translateAndShowPopup(element, pos);
   } catch (e) {
     console.error(e);
   }
@@ -39,25 +30,13 @@ async function translateElement(message: any) {
 async function translateArea(message: any) {
   try {
     const pos = getWindowCenter();
-    const result = await runOCRandTranslation(message.text, pos);
-    showTranslationWindowPopup(
-      result.translation,
-      pos,
-      getLanguage(),
-      getTarget(),
-      { src: OCR_LANGS, target: getTranslator().supported.target },
-      message.text,
-      result.recognised,
-    );
+    translateAndShowPopup(message.text, pos);
   } catch (e) {
     console.error(e);
   }
 }
 
-async function runOCRandTranslation(
-  source: Element | string,
-  pos: Position,
-): Promise<{ recognised: string; translation: string }> {
+async function translateAndShowPopup(source: Element | string, pos: Position) {
   showPopup('Recognising text...', pos, 1000);
   const recognised = await runOCR(source);
   console.log(`OCR result: ${recognised}`);
@@ -69,7 +48,15 @@ async function runOCRandTranslation(
       target: getTarget(),
     })
   ).result;
-  return { recognised, translation };
+  showTranslationWindowPopup(
+    translation,
+    pos,
+    getLanguage(),
+    getTarget(),
+    { src: OCR_LANGS, target: getTranslator().supported.target },
+    source,
+    recognised,
+  );
 }
 
 interface Position {
