@@ -18,8 +18,8 @@ let url: string | null;
 const sync = (settings: Settings) => {
   const id = settings.activeProviderId;
   translator = translatorRegistry[id];
-  target = settings.target;
-  language = settings.language;
+  target = settings.providers[id].target;
+  language = settings.providers[id].language;
   token = settings.providers[id].token;
   url = settings.providers[id].url;
 };

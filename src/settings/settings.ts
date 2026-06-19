@@ -1,18 +1,18 @@
 import { LangCode } from '../languages';
 
-type provider = {
+type Provider = {
   name: string;
   requiresToken: boolean;
   requiresUrl: boolean;
   url: string | null;
   token: string | null;
+  target: LangCode;
+  language: LangCode;
 };
 
 export type Settings = {
   activeProviderId: string;
-  providers: Record<string, provider>;
-  target: LangCode;
-  language: LangCode;
+  providers: Record<string, Provider>;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -24,6 +24,8 @@ export const DEFAULT_SETTINGS: Settings = {
       requiresUrl: false,
       url: null,
       token: null,
+      target: LangCode.English,
+      language: LangCode.English,
     },
     ['deepl']: {
       name: 'DeepL',
@@ -31,6 +33,8 @@ export const DEFAULT_SETTINGS: Settings = {
       requiresUrl: false,
       url: null,
       token: null,
+      target: LangCode.EnglishBritish,
+      language: LangCode.English,
     },
     ['libretranslate']: {
       name: 'LibreTranslate',
@@ -38,10 +42,10 @@ export const DEFAULT_SETTINGS: Settings = {
       requiresUrl: true,
       url: null,
       token: null,
+      target: LangCode.English,
+      language: LangCode.English,
     },
   },
-  target: LangCode.English,
-  language: LangCode.English,
 };
 
 export const getActiveProvider = (settings: Settings) => {

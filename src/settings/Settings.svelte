@@ -7,34 +7,42 @@
   import { getActiveProvider } from './settings';
   import { settings } from './settingsStore';
 
+  const getCurrentTarget = (): LangCode => $settings.providers[$settings.activeProviderId].target;
+
+  const getCurrentLanguage = (): LangCode =>
+    $settings.providers[$settings.activeProviderId].language;
+
   const getSupportedTargets = (provider: string): Set<LangCode> => {
     return getTranslatorById(provider).supported.target;
   };
 
-  const updateSettingsToken = (token: string) => {
+  const updateCurrentProviderProperty = (property: string, value: any) => {
     const id = $settings.activeProviderId;
     settings.update({
       providers: {
         ...$settings.providers,
-        id: {
+        [id]: {
           ...$settings.providers[id],
-          token,
+          [property]: value,
         },
       },
     });
   };
 
+  const updateSettingsToken = (token: string) => {
+    updateCurrentProviderProperty('token', token);
+  };
+
   const updateSettingsUrl = (url: string) => {
-    const id = $settings.activeProviderId;
-    settings.update({
-      providers: {
-        ...$settings.providers,
-        id: {
-          ...$settings.providers[id],
-          url,
-        },
-      },
-    });
+    updateCurrentProviderProperty('url', url);
+  };
+
+  const updateSettingsTarget = (target: LangCode) => {
+    updateCurrentProviderProperty('target', target);
+  };
+
+  const updateSettingsLanguage = (language: LangCode) => {
+    updateCurrentProviderProperty('language', language);
   };
 </script>
 
@@ -75,16 +83,16 @@
 
 <LanguageSelect
   title={'Translation target language'}
-  defaultValue={$settings.target}
+  defaultValue={getCurrentTarget()}
   options={getSupportedTargets($settings.activeProviderId)}
-  callback={(target) => settings.update({ target })}
+  callback={(target) => updateSettingsTarget(target)}
 />
 
 <LanguageSelect
   title={'Text recognition language'}
-  defaultValue={$settings.language}
+  defaultValue={getCurrentLanguage()}
   options={OCR_LANGS}
-  callback={(language) => settings.update({ language })}
+  callback={(language) => updateSettingsLanguage(language)}
 />
 
 <style>
