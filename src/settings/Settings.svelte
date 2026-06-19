@@ -81,19 +81,21 @@
   {/if}
 </div>
 
-<LanguageSelect
-  title={'Translation target language'}
-  defaultValue={getCurrentTarget()}
-  options={getSupportedTargets($settings.activeProviderId)}
-  callback={(target) => updateSettingsTarget(target)}
-/>
+{#key $settings.activeProviderId}
+  <LanguageSelect
+    title={'Translation target language'}
+    defaultValue={getCurrentTarget()}
+    options={getSupportedTargets($settings.activeProviderId)}
+    callback={(target) => updateSettingsTarget(target)}
+  />
 
-<LanguageSelect
-  title={'Text recognition language'}
-  defaultValue={getCurrentLanguage()}
-  options={OCR_LANGS}
-  callback={(language) => updateSettingsLanguage(language)}
-/>
+  <LanguageSelect
+    title={'Text recognition language'}
+    defaultValue={getCurrentLanguage()}
+    options={OCR_LANGS}
+    callback={(language) => updateSettingsLanguage(language)}
+  />
+{/key}
 
 <style>
   .provider {
