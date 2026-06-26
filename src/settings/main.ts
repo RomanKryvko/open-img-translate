@@ -5,5 +5,5 @@ import { settings } from './settingsStore';
 settings.init();
 
 hydrate(Settings, {
-  target: document.getElementById('app'),
+  target: document.getElementById('app')!,
 });

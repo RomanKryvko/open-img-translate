@@ -13,6 +13,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         options: resolve(__dirname, 'src/settings/options.html'),
+        settingsPopup: resolve(__dirname, 'src/settings/settings-popup.html'),
       },
       output: {
         entryFileNames: '[name].js',

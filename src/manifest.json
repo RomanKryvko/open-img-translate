@@ -24,5 +24,10 @@
       "css": ["styles/content.css"]
     }
   ],
+  "browser_action": {
+    "default_icon": "icons/test.png",
+    "default_title": "OIT",
+    "default_popup": "settings-popup.html"
+  },
   "permissions": ["menus", "activeTab", "scripting", "storage", "*://*.deepl.com/*"]
 }
