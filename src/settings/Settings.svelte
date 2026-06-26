@@ -1,49 +1,8 @@
 <script lang="ts">
-  import { LangCode } from '../languages';
-  import { OCR_LANGS } from '../ocr';
-  import LanguageSelect from '../popup/LanguageSelect.svelte';
-  import { getTranslatorById } from '../translatorConfig';
+  import LanguageSelectSettings from './LanguageSelectSettings.svelte';
   import ProviderButton from './ProviderButton.svelte';
   import { getActiveProvider } from './settings';
   import { settings } from './settingsStore';
-
-  const getCurrentTarget = (): LangCode => $settings.providers[$settings.activeProviderId].target;
-
-  const getCurrentLanguage = (): LangCode =>
-    $settings.providers[$settings.activeProviderId].language;
-
-  const getSupportedTargets = (provider: string): Set<LangCode> => {
-    return getTranslatorById(provider).supported.target;
-  };
-
-  const updateCurrentProviderProperty = (property: string, value: any) => {
-    const id = $settings.activeProviderId;
-    settings.update({
-      providers: {
-        ...$settings.providers,
-        [id]: {
-          ...$settings.providers[id],
-          [property]: value,
-        },
-      },
-    });
-  };
-
-  const updateSettingsToken = (token: string) => {
-    updateCurrentProviderProperty('token', token);
-  };
-
-  const updateSettingsUrl = (url: string) => {
-    updateCurrentProviderProperty('url', url);
-  };
-
-  const updateSettingsTarget = (target: LangCode) => {
-    updateCurrentProviderProperty('target', target);
-  };
-
-  const updateSettingsLanguage = (language: LangCode) => {
-    updateCurrentProviderProperty('language', language);
-  };
 </script>
 
 <h1>Open Image Translate Settings</h1>
@@ -64,7 +23,7 @@
       <input
         type="password"
         value={getActiveProvider($settings).token ?? ''}
-        oninput={(e) => updateSettingsToken((e.target as HTMLInputElement).value)}
+        oninput={(e) => settings.updateToken((e.target as HTMLInputElement).value)}
       />
     </label>
   {/if}
@@ -75,27 +34,13 @@
       <input
         type="url"
         value={getActiveProvider($settings).url ?? ''}
-        oninput={(e) => updateSettingsUrl((e.target as HTMLInputElement).value)}
+        oninput={(e) => settings.updateUrl((e.target as HTMLInputElement).value)}
       />
     </label>
   {/if}
 </div>
 
-{#key $settings.activeProviderId}
-  <LanguageSelect
-    title={'Translation target language'}
-    defaultValue={getCurrentTarget()}
-    options={getSupportedTargets($settings.activeProviderId)}
-    callback={(target) => updateSettingsTarget(target)}
-  />
-
-  <LanguageSelect
-    title={'Text recognition language'}
-    defaultValue={getCurrentLanguage()}
-    options={OCR_LANGS}
-    callback={(language) => updateSettingsLanguage(language)}
-  />
-{/key}
+<LanguageSelectSettings />
 
 <style>
   .provider {
