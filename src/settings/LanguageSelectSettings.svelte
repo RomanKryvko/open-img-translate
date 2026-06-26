@@ -13,6 +13,14 @@
   const getSupportedTargets = (provider: string): Set<LangCode> => {
     return getTranslatorById(provider).supported.target;
   };
+
+  type Layout = 'column' | 'row';
+
+  const {
+    layout = 'column',
+  }: {
+    layout?: Layout;
+  } = $props();
 </script>
 
 {#key $settings.activeProviderId}
@@ -21,6 +29,7 @@
     defaultValue={getCurrentTarget()}
     options={getSupportedTargets($settings.activeProviderId)}
     callback={(target) => settings.updateTarget(target)}
+    {layout}
   />
 
   <LanguageSelect
@@ -28,5 +37,6 @@
     defaultValue={getCurrentLanguage()}
     options={OCR_LANGS}
     callback={(language) => settings.updateLanguage(language)}
+    {layout}
   />
 {/key}

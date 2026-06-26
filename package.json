@@ -19,7 +19,7 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "build": "vite build --config vite.config.background.js && vite build --config vite.config.content.js && vite build --config vite.config.options.js && cp -r src/_locales/ src/styles/ src/manifest.json dist/",
+    "build": "vite build --config vite.config.background.js && vite build --config vite.config.content.js && vite build --config vite.config.options.js && cp -r src/_locales/ src/styles/ src/manifest.json src/assets dist/",
     "dev": "npm run build && web-ext -s dist/ run",
     "format": "prettier . -w"
   },
